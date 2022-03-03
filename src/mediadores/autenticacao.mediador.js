@@ -7,7 +7,7 @@ function diferencaoEmHoras(data1, data2) {
 }
 
 module.exports = function(req, res, next) {
-    const token = req.header('Authorization')
+    const token = req.header('Authorization');
     const dataDoToken = token?.replace('Bearer ', '');
     if (!token || !Boolean(+dataDoToken)) {
         return res.status(401).send("Token inválido");

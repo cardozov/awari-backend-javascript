@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const Acesso = require('../modelos/autenticacao.modelo');
 
 async function verificaAcesso(usuario, senha) {
-    if (! await usuarioJaCadastrado(usuario)) {
+    if (!(await usuarioJaCadastrado(usuario))) {
         return false;
     }
     const acesso = await Acesso.findOne({ usuario })

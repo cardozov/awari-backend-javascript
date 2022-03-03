@@ -2,7 +2,7 @@ const autenticacaoMediador = require('../mediadores/autenticacao.mediador');
 const Item = require('../modelos/item.modelo');
 
 module.exports = function(app) {
-    // app.use('/item', autenticacaoMediador);
+    app.use('/item', autenticacaoMediador);
 
     app
         .route('/item')
@@ -15,7 +15,7 @@ module.exports = function(app) {
         })
         .post(async (req, res) => {
             const item = req.body;
-            if (!item.descricao) return res.status(400).json({ erro: 'Parâmetro desricao é obrigatório'});
+            if (!item.descricao) return res.status(400).json({ erro: 'Parâmetro descrição é obrigatório'});
             if (item?.preco <= 0) return res.status(400).json({ erro: 'Parâmetro preco deve ser válido' });
             const itemModelo = new Item({ id: Date.now(), ...item })
             try {
