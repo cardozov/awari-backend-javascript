@@ -1,7 +1,4 @@
 
-const http = require('http');
-const url = require('url');
-
 const estadosComFreteDefinido = {
     'SP': 5,
     'RJ': 6.5,
@@ -62,25 +59,3 @@ function calculaFrete(cidade, estado) {
     const regiao = regiaoPorEstado[estado];
     return precoPorRegiao[regiao];
 }
-
-const app = http.createServer(function (request, response) {
-    if (request.url.startsWith('/frete')) {
-        const parametrosQuery = url.parse(request.url, true).query;
-        const { cidade, estado } = parametrosQuery;
-        try {
-            const valor = calculaFrete(cidade, estado);
-            const CASAS_DECIMAIS = 2;
-            const valorFormatado = valor.toFixed(CASAS_DECIMAIS).toString().replace('.',',');
-            response.end(`O valor do frete é R$${valorFormatado}`);
-        } catch (erro) {
-            response.end('Cidade e/ou Estado inválidos');
-        }
-    }
-    else {
-        response.end('Esta URL não faz parte da nossa API');
-    }
-
-})
-app.listen(3000, function() {
-    console.log('Server running at http://localhost:3000/');
-});
