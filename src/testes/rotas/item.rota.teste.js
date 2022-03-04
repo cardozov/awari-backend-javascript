@@ -1,11 +1,14 @@
+const express = require('express');
 const request = require('supertest');
 const mockingoose = require('mockingoose');
 
 const Item = require('../../modelos/item.modelo');
 const itemRota = require('../../rotas/item.rota');
-const { setupTeste } = require('../fixtures');
 
-const app = setupTeste(itemRota);
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+itemRota(app);
 const itemMock = {
     _id: expect.any(String),
     id: 1646164691606,
