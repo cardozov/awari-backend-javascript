@@ -1,65 +1,80 @@
 
 const http = require('http');
-const https = require('https');
+const url = require('url');
 
-function calculaFrete(cepDestino, response) {
-    const cepDaLoja = '01001001';
-    const dadosDeEnvio = JSON.stringify({});
-    const opcoes = {
-        hostname: 'ws.correios.com.br',
-        port: '80',
-        path: `/calculador/CalcPrecoPrazo.aspx?nCdEmpresa=&sDsSenha=&nCdServico=41106&sCepOrigem=${cepDaLoja}&sCepDestino=${cepDestino}&nVlPeso=1&nCdFormato=1&nVlComprimento=20&nVlAltura=20&nVlLargura=20&nVlDiametro=0&sCdMaoPropria=n&nVlValorDeclarado=0&sCdAvisoRecebimento=n&StrRetorno=xml&nIndicaCalculo=3`,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': dadosDeEnvio.length
-        }
-    };
-    const req = http.request(opcoes, function(res) {
-        const dados = []
-        res.on('data', function(pedaco) {
-            dados.push(pedaco);
-        })
-        res.on('end', function() {
-            const retorno = Buffer.concat(dados);
-            response.writeHead(200, {'Content-Type': 'application/xml'}).end(retorno);
-        })
-    });
-    req.on('error', function(erro) {
-        console.log(erro)
-    });
-    req.write(dadosDeEnvio);
-    req.end();
-}
+const estadosComFreteDefinido = {
+    'SP': 5,
+    'RJ': 6.5,
+    'MG': 7.2,
+    'PR': 8,
+    'DF': 25.5,
+    'AM': 23.5,
+    'AC': 23.5,
+    'RO': 22,
+    'RR': 22
+};
+const regiaoPorEstado = {
+    'RO': 'Norte',
+    'AC': 'Norte',
+    'AM': 'Norte',
+    'RR': 'Norte',
+    'PA': 'Norte',
+    'AP': 'Norte',
+    'TO': 'Norte',
+    'MA': 'Nordeste',
+    'PI': 'Nordeste',
+    'CE': 'Nordeste',
+    'RN': 'Nordeste',
+    'PB': 'Nordeste',
+    'PE': 'Nordeste',
+    'AL': 'Nordeste',
+    'SE': 'Nordeste',
+    'BA': 'Nordeste',
+    'MG': 'Sudeste',
+    'ES': 'Sudeste',
+    'RJ': 'Sudeste',
+    'SP': 'Sudeste',
+    'PR': 'Sul',
+    'SC': 'Sul',
+    'RS': 'Sul',
+    'MS': 'Centro Oeste',
+    'MT': 'Centro Oeste',
+    'GO': 'Centro Oeste',
+    'DF': 'Centro Oeste',
+};
+const precoPorRegiao = {
+    'Sul': 10,
+    'Sudeste': 8,
+    'Centro Oeste': 11.5,
+    'Nordeste': 15,
+    'Norte': 20,
+};
 
-function enderecoPorCep(cep, response) {
-    const url = `https://viacep.com.br/ws/${cep}/json/`;
-    const req = https.get(url, function (res) {
-        const dados = [];
-        res.on('data', function (chunk) {
-            dados.push(chunk);
-        });
-        res.on('end', function () {
-            const retorno = Buffer.concat(dados).toString();
-            response.writeHead(200, {
-                'Content-Length': Buffer.byteLength(retorno),
-                'Content-Type': 'application/json'
-            }).end(retorno);
-        });
-    });
-    req.on('error', function (erro) {
-        console.log(erro);
-    });
+function calculaFrete(cidade, estado) {
+    if (cidade === 'São Paulo') {
+        return 0 // Frete Grátis
+    }
+
+    if (estadosComFreteDefinido[estado]) {
+        return estadosComFreteDefinido[estado];
+    }
+
+    const regiao = regiaoPorEstado[estado];
+    return precoPorRegiao[regiao];
 }
 
 const app = http.createServer(function (request, response) {
     if (request.url.startsWith('/frete')) {
-        const [, , cepDestino] = request.url.split('/');
-        calculaFrete(cepDestino, response);
-    }
-    else if (request.url.startsWith('/endereco')) {
-        const [, , cep] = request.url.split('/');
-        enderecoPorCep(cep, response);
+        const parametrosQuery = url.parse(request.url, true).query;
+        const { cidade, estado } = parametrosQuery;
+        try {
+            const valor = calculaFrete(cidade, estado);
+            const CASAS_DECIMAIS = 2;
+            const valorFormatado = valor.toFixed(CASAS_DECIMAIS).toString().replace('.',',');
+            response.end(`O valor do frete é R$${valorFormatado}`);
+        } catch (erro) {
+            response.end('Cidade e/ou Estado inválidos');
+        }
     }
     else {
         response.end('Esta URL não faz parte da nossa API');
