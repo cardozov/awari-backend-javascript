@@ -4,10 +4,6 @@ const freteRota = require('../../rotas/cep.rota');
 const { freteXml, setupTeste, enderecoJson } = require('../fixtures');
 const servicoFrete = require('../../servicos/frete.servico');
 
-jest.mock(
-    '../../mediadores/autenticacao.mediador',
-    () => jest.fn((req, res, next) => next())
-)
 jest.mock('../../servicos/frete.servico');
 
 const app = setupTeste(freteRota);

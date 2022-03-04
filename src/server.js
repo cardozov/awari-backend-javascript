@@ -2,15 +2,13 @@ const express = require('express');
 const logger = require('morgan');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
-require('dotenv').config();
 
 const rotas = require('./rotas/rotas');
+const { URL_MONGODB, PORTA } = require('./constantes');
 
 const app = express();
-const porta = process.env.PORTA || 3003
-const mongoUrl = process.env.URL_MONGODB || '';
 
-mongoose.connect(mongoUrl);
+mongoose.connect(URL_MONGODB);
 app.use(logger('dev'));
 app.use(helmet());
 app.use(express.json());
@@ -18,4 +16,4 @@ app.use(express.urlencoded({ extended: false }));
 
 rotas(app);
 
-app.listen(porta, () => console.log(`Rodando em localhost:${porta}`));
+app.listen(PORTA, () => console.log(`Rodando em localhost:${PORTA}`));

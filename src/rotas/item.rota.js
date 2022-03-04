@@ -1,9 +1,6 @@
-const autenticacaoMediador = require('../mediadores/autenticacao.mediador');
 const Item = require('../modelos/item.modelo');
 
 module.exports = function(app) {
-    app.use('/item', autenticacaoMediador);
-
     app
         .route('/item')
         .get(async (req, res) => {

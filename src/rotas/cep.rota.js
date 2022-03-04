@@ -1,6 +1,5 @@
 const { xml2js } = require('xml-js');
 
-const autenticacaoMediador = require('../mediadores/autenticacao.mediador');
 const { calculaFrete, enderecoPorCep } = require('../servicos/frete.servico');
 
 function processaErro(erro) {
@@ -30,7 +29,7 @@ function mapaJsonParaFrete(objeto) {
 }
 
 module.exports = function(app) {
-    app.get('/frete/:cep', autenticacaoMediador, async function(req, res) {
+    app.get('/frete/:cep', async function(req, res) {
         const { cep } = req.params;
         const xml = await calculaFrete(cep);
         const json = xml2js(xml, { compact: true });
@@ -41,7 +40,7 @@ module.exports = function(app) {
         return res.status(200).json({ valor, valorText, prazo, prazoText });
     })
 
-    app.get('/endereco/:cep', autenticacaoMediador, async function(req, res) {
+    app.get('/endereco/:cep', async function(req, res) {
         const { cep } = req.params;
         try {
             const endereco = await enderecoPorCep(cep);

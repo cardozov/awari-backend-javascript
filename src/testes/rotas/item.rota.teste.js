@@ -5,11 +5,6 @@ const Item = require('../../modelos/item.modelo');
 const itemRota = require('../../rotas/item.rota');
 const { setupTeste } = require('../fixtures');
 
-jest.mock(
-    '../../mediadores/autenticacao.mediador',
-    () => jest.fn((req, res, next) => next())
-)
-
 const app = setupTeste(itemRota);
 const itemMock = {
     _id: expect.any(String),
@@ -22,13 +17,6 @@ describe('Arquivo item.rota.js', () => {
     afterEach(() => jest.clearAllMocks())
 
     describe('Na rota /item', () => {
-        it('deve validar o token em todas as chamadas', async () => {
-            const mediador = require('../../mediadores/autenticacao.mediador');
-            mockingoose(Item).toReturn(Array(itemMock), 'find');
-            await request(app).get('/item');
-            expect(mediador).toBeCalledTimes(1);
-        })
-
         it('GET deve chamar o mongoose e retonar os valores e status corretos', async () => {
             mockingoose(Item).toReturn(Array(itemMock), 'find');
             const response = await request(app)
@@ -66,13 +54,6 @@ describe('Arquivo item.rota.js', () => {
     })
 
     describe('Na rota /item/:id', () => {
-        it('deve validar o token em todas as chamadas', async () => {
-            const mediadorMock = require('../../mediadores/autenticacao.mediador');
-            mockingoose(Item).toReturn(itemMock, 'find');
-            await request(app).get('/item/1234567890');
-            expect(mediadorMock).toBeCalledTimes(1);
-        })
-
         it('GET deve retornar erro caso ID não exista', async () => {
             mockingoose(Item).toReturn(undefined, 'findOne');
             const response = await request(app)
