@@ -12,8 +12,8 @@ function constroiUrlCorreios(cepOrigem, cepDestino) {
         ?nCdEmpresa=
         &sDsSenha=
         &nCdServico=41106
-        &sCepOrigem=${cepDestino}
-        &sCepDestino=${cepOrigem}
+        &sCepOrigem=${cepOrigem}
+        &sCepDestino=${cepDestino}
         &nVlPeso=1
         &nCdFormato=1
         &nVlComprimento=20

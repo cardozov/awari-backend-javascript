@@ -1,7 +1,7 @@
 const request = require('supertest');
 
-const freteRota = require('../../rotas/frete.rota');
-const { freteXml, setupTeste } = require('../fixtures');
+const freteRota = require('../../rotas/cep.rota');
+const { freteXml, setupTeste, enderecoJson } = require('../fixtures');
 const servicoFrete = require('../../servicos/frete.servico');
 
 jest.mock(
@@ -25,5 +25,13 @@ describe('Arquivo frete.rota.js', () => {
             .get('/frete/01001001')
             .expect(200);
         expect(response.body).toMatchObject(retornoMock);
+    })
+
+    it('GET em /endereco/:cep', async () => {
+        jest.spyOn(servicoFrete, 'enderecoPorCep').mockResolvedValue(enderecoJson);
+        const response = await request(app)
+            .get('/endereco/01001001')
+            .expect(200);
+        expect(response.body).toMatchObject(enderecoJson);
     })
 })

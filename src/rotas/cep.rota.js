@@ -1,7 +1,7 @@
 const { xml2js } = require('xml-js');
 
 const autenticacaoMediador = require('../mediadores/autenticacao.mediador');
-const { calculaFrete } = require('../servicos/frete.servico');
+const { calculaFrete, enderecoPorCep } = require('../servicos/frete.servico');
 
 function processaErro(erro) {
     switch (erro) {
@@ -30,9 +30,7 @@ function mapaJsonParaFrete(objeto) {
 }
 
 module.exports = function(app) {
-    app.use('/frete', autenticacaoMediador);
-
-    app.get('/frete/:cep', async function(req, res) {
+    app.get('/frete/:cep', autenticacaoMediador, async function(req, res) {
         const { cep } = req.params;
         const xml = await calculaFrete(cep);
         const json = xml2js(xml, { compact: true });
@@ -41,5 +39,16 @@ module.exports = function(app) {
         if (descricaoErro) return res.status(descricaoErro.status).json(descricaoErro.mensagem);
 
         return res.status(200).json({ valor, valorText, prazo, prazoText });
+    })
+
+    app.get('/endereco/:cep', autenticacaoMediador, async function(req, res) {
+        const { cep } = req.params;
+        try {
+            const endereco = await enderecoPorCep(cep);
+            res.status(200).json(endereco);
+        } catch (erro) {
+            console.err(erro);
+            return res.status(500).json({ message: 'Ocorreu algum comportamento inesperado' });
+        }
     })
 }
